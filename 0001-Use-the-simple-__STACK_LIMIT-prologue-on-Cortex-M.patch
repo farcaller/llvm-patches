@@ -1,0 +1,26 @@
+From 93dfc50932e191a8d0f5d92bbfb50be19f807249 Mon Sep 17 00:00:00 2001
+From: Vladimir Pouzanov <farcaller@google.com>
+Date: Sun, 4 May 2014 08:45:29 +0100
+Subject: [PATCH 1/2] Use the simple __STACK_LIMIT prologue on Cortex-M*
+
+---
+ lib/Target/ARM/ARMFrameLowering.cpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/lib/Target/ARM/ARMFrameLowering.cpp b/lib/Target/ARM/ARMFrameLowering.cpp
+index c18e741..325a124 100644
+--- a/lib/Target/ARM/ARMFrameLowering.cpp
++++ b/lib/Target/ARM/ARMFrameLowering.cpp
+@@ -1774,7 +1774,8 @@ void ARMFrameLowering::adjustForSegmentedStacks(MachineFunction &MF) const {
+                       .addReg(ARM::SP).addImm(AlignedStackSize)).addReg(0);
+   }
+ 
+-  if (Thumb && ST->isThumb1Only()) {
++  if ((Thumb && ST->isThumb1Only()) ||
++      ST->getCPUString().find("cortex-m") == 0) {
+     unsigned PCLabelId = ARMFI->createPICLabelUId();
+     ARMConstantPoolValue *NewCPV = ARMConstantPoolSymbol::Create(
+         MF.getFunction()->getContext(), "__STACK_LIMIT", PCLabelId, 0);
+-- 
+1.8.5.2
+
